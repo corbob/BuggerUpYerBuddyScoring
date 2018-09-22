@@ -4,4 +4,9 @@ table, th, td {
 
 td {
     text-align: center;
+    padding: .25em;
+}
+
+.♥, .♦ {
+    color: red;
 }
