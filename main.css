@@ -1,10 +1,9 @@
-table, th, td {
+table, th {
     border: 1px solid black;
 }
 
 td {
     text-align: center;
-    padding: .25em;
 }
 
 .♥, .♦ {
@@ -13,4 +12,13 @@ td {
 
 .☺ {
     background-color: yellow;
+}
+
+td input {
+    width: 5em;
+    margin: 2px;
+}
+
+.totals {
+    text-align: right
 }
