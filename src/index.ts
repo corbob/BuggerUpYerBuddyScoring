@@ -1,40 +1,53 @@
+let Players: Array<Array<Hands>> = [[]];
+const SUITS: Array<string> = ['♥','♠','♦','♣','☺'];
+let headerRow: HTMLTableRowElement; // = document.getElementById('header') as HTMLTableRowElement;
+let scoreTable: HTMLTableElement; // = document.getElementById('score') as HTMLTableElement;
+
+function LoadVariables() {
+    headerRow = document.getElementById('header') as HTMLTableRowElement;
+    scoreTable = document.getElementById('score') as HTMLTableElement;
+}
+
 function DrawScorecard() {
-    let suits: Array<string> = ['♥','♠','♦','♣','☺'];
     let direction: number = 1;
     let numCards: number = 1;
-    let headerRow: HTMLTableRowElement = document.getElementById('header') as HTMLTableRowElement;
-    let scoreTable: HTMLTableElement = document.getElementById('score') as HTMLTableElement;
     let totalPlayers: number = parseInt((document.getElementById('numPlayers') as HTMLInputElement).value);
     let maxHands: number = Math.floor(52 / totalPlayers);
     // Set header
-    for (let i: number = 1 ; i < (totalPlayers + 1) ; i++ ) {
+    for (let i: number = 0 ; i < totalPlayers ; i++ ) {
+        Players[i] = [];
         var player = document.createElement('th');
         player.colSpan = 3;
         player.innerText = 'Player ' + i;
         headerRow.appendChild(player);
     }
-    for (let i: number = 1 ; i < (maxHands * 2) + 1 ; i++) {
+    for (let i: number = 0 ; i < (maxHands * 2) ; i++) {
         if(numCards > maxHands) {
             direction = -1;
             numCards--;
         }
         var scoreRow = document.createElement('tr');
-        scoreRow.id = 'hand' + numCards;
+        scoreRow.id = 'hand' + numCards + 1;
         var handNum = document.createElement('td');
-        handNum.innerText = numCards as any as string;
+        handNum.innerText = numCards.toString();
         numCards += direction;
         scoreRow.appendChild(handNum);
         var suit = document.createElement('td');
-        suit.innerText = suits[(i-1) % 5];
-        suit.className = suits[(i-1) % 5];
+        suit.innerText = SUITS[(i) % 5];
+        suit.className = SUITS[(i) % 5];
         scoreRow.appendChild(suit);
         scoreRow.appendChild(newCell('totalBid',0 as any));
-        for (let j: number = 1 ; j < (totalPlayers + 1) ; j++ ) {
+        for (let j: number = 0 ; j < totalPlayers ; j++ ) {
             // var player = document.createElement('td');
             // player.innerHTML = '&nbsp;';
-            scoreRow.appendChild(newCell('tricksBid','bid'));
-            scoreRow.appendChild(newCell('tricksTaken','taken'));
-            scoreRow.appendChild(newCell('score','score'));
+            Players[j][i] = {
+                tricksBid: newCell('tricksBid','bid'),
+                tricksTaken: newCell('tricksTaken','taken'),
+                score: newCell('score','score'),
+            }
+            scoreRow.appendChild(Players[j][i].tricksBid);
+            scoreRow.appendChild(Players[j][i].tricksTaken);
+            scoreRow.appendChild(Players[j][i].score);
         }
         scoreTable.appendChild(scoreRow);
     }
@@ -51,4 +64,10 @@ let newCell = (className?: string, contents?: string) => {
         temp.innerHTML = '&nbsp;';
     }
     return temp;
+}
+
+interface Hands {
+    tricksBid: HTMLTableCellElement;
+    tricksTaken: HTMLTableCellElement;
+    score: HTMLTableCellElement;
 }

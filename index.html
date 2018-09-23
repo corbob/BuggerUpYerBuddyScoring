@@ -8,13 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
     <script src="out/index.js"></script>
-    <script type="text/javascript">
-        var test = 0;
-    </script>
 </head>
 
-<body>
-    <input name="numPlayers" type="number" onchange="test = document.getElementById('numPlayers').value;" id='numPlayers'></input>
+<body onload="LoadVariables();">
+    <input name="numPlayers" type="number" onchange="test = document.getElementById('numPlayers').value;" id='numPlayers' max='10'></input>
     <button id='drawBtn' onclick="DrawScorecard();">Draw</button>
     <br /><br /><br />
     <table id='score'>
