@@ -1,5 +1,5 @@
 import { Player } from './player';
-// import { Game } from './game';
+import { Game } from './game';
 
 let players: Player[] = [];
 const SUITS: string[] = ['♥','♠','♦','♣','☺'];
@@ -7,17 +7,17 @@ let headerRow: HTMLTableRowElement;
 let subHeaderRow: HTMLTableRowElement;
 let scoreTable: HTMLTableElement;
 let scoreRow: HTMLTableRowElement = document.createElement('tr');
-
-function LoadVariables() {
+console.log("Before LoadVariables defined");
+document.body.onload = () => {
     headerRow = document.getElementById('header') as HTMLTableRowElement;
     subHeaderRow = document.getElementById('subHeader') as HTMLTableRowElement;
     scoreTable = document.getElementById('score') as HTMLTableElement;
     scoreRow.appendChild(newCell());
     scoreRow.appendChild(newCell());
     scoreRow.appendChild(newCell());
-}
+}; // on load of body
 
-function DrawScorecard() {
+document.getElementById("drawBtn").click = () => {
     let direction: number = 1;
     let numCards: number = 1;
     let totalPlayers: number = parseInt((document.getElementById('numPlayers') as HTMLInputElement).value);
@@ -64,7 +64,7 @@ function DrawScorecard() {
     for (let i = 0 ; i < allBids.length ; i++){
         allBids[i].addEventListener('change', bidChanged);
     }
-}
+}; // Draw Scoreboard on button click.
 
 let newCell = (contents?: string, className?: string) => {
     let temp: HTMLTableCellElement = document.createElement('td');
@@ -105,3 +105,4 @@ function sumUpBids(hand: HTMLTableRowElement) {
     }
     hand.children[2].innerHTML = totalBids.toString();
 }
+console.log("End of index.ts");
