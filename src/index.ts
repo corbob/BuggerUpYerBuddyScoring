@@ -1,5 +1,8 @@
-let players: Array<Player> = [];
-const SUITS: Array<string> = ['♥','♠','♦','♣','☺'];
+import { Player } from './player';
+// import { Game } from './game';
+
+let players: Player[] = [];
+const SUITS: string[] = ['♥','♠','♦','♣','☺'];
 let headerRow: HTMLTableRowElement;
 let subHeaderRow: HTMLTableRowElement;
 let scoreTable: HTMLTableElement;
@@ -25,10 +28,10 @@ function DrawScorecard() {
     let maxHands: number = Math.floor(52 / totalPlayers);
     // Set header
     for (let i: number = 0 ; i < totalPlayers ; i++ ) {
-        players[i] = new Player('Player ' + i, maxHands);
+        players[i] = new Player('Player ' + i);
         var currentPlayer = document.createElement('th');
         currentPlayer.colSpan = 2;
-        currentPlayer.innerText = players[i].getName();
+        currentPlayer.innerText = players[i].name;
         headerRow.appendChild(currentPlayer);
         subHeaderRow.appendChild(newCell('Bid'));
         subHeaderRow.appendChild(newCell('Taken'));
@@ -84,25 +87,7 @@ let newCell = (contents?: string, className?: string) => {
     return temp;
 }
 
-class Player {
-    private name: string;
-    private handBids: number[];
-    private handTakens: number[];
-    constructor(name: string, maxHands: number) {
-        this.name = name;
-        this.handBids = [];
-        this.handTakens = [];
-    };
-    getName(): string {
-        return this.name;
-    }
-    
-    setHandBid(handNum: number, tricksBid: number) {
-        this.handBids[handNum] = tricksBid;
-        console.log(handNum);
-        console.log(tricksBid);
-    };
-}
+
 
 function bidChanged() {
     let playerIndex: number = parseInt(this.className.replace(' ','').replace('tricksBid','').replace('player',''));
