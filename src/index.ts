@@ -25,7 +25,7 @@ function DrawScorecard() {
     let maxHands: number = Math.floor(52 / totalPlayers);
     // Set header
     for (let i: number = 0 ; i < totalPlayers ; i++ ) {
-        players[i] = new Player('Player ' + i);
+        players[i] = new Player('Player ' + i, maxHands);
         var currentPlayer = document.createElement('th');
         currentPlayer.colSpan = 2;
         currentPlayer.innerText = players[i].getName();
@@ -42,39 +42,43 @@ function DrawScorecard() {
             numCards--;
         }
         var handRow = document.createElement('tr');
-        handRow.id = 'hand' + numCards + 1;
+        handRow.id = `hand${ i }`;
         handRow.appendChild(newCell(numCards.toString()));
         numCards += direction;
         handRow.appendChild(newCell(SUITS[i % 5], SUITS[i % 5]));
         handRow.appendChild(newCell(0 as any));
         for (let j: number = 0 ; j < totalPlayers ; j++ ) {
-            handRow.appendChild(newCell('input', 'trickBid'));
-            handRow.appendChild(newCell('input', 'trickTaken'));
-            // player[j].getHand(i) = {
-            //     tricksBid: newCell('input','tricksBid'),
-            //     tricksTaken: newCell('input','tricksTaken'),
-            // }
-            // scoreRow.appendChild(Players[j][i].tricksBid);
-            // scoreRow.appendChild(Players[j][i].tricksTaken);
-            // scoreRow.appendChild(Players[j][i].score);
+            handRow.appendChild(newCell('input', 'tricksBid player' + j.toString()));
+            handRow.appendChild(newCell('input', 'tricksTaken player' + j.toString()));
         }
         scoreTable.appendChild(handRow);
     }
-    scoreTable.appendChild(scoreRow)
+    scoreTable.appendChild(scoreRow);
+
+    // Add callback to all Bids.
+
+    let allBids: HTMLInputElement[] = document.getElementsByClassName('tricksBid') as any as HTMLInputElement[];
+    for (let i = 0 ; i < allBids.length ; i++){
+        allBids[i].addEventListener('change', bidChanged);
+    }
 }
 
 let newCell = (contents?: string, className?: string) => {
     let temp: HTMLTableCellElement = document.createElement('td');
-    if(className !== undefined) {
-        temp.className = className;
-    }
     if(contents !== undefined && contents !== 'input') {
         temp.innerText = contents;
     } else if (contents === 'input') {
         let inputTemp: HTMLInputElement = document.createElement('input');
         inputTemp.type = 'number';
+        inputTemp.defaultValue = '0';
+        if(className !== undefined) {
+            inputTemp.className = className;
+        }
         temp.appendChild(inputTemp)
     } else {
+        if(className !== undefined) {
+            temp.className = className;
+        }
         temp.innerHTML = '&nbsp;';
     }
     return temp;
@@ -82,21 +86,37 @@ let newCell = (contents?: string, className?: string) => {
 
 class Player {
     private name: string;
-    private hands: Array<Hand>;
-    constructor(name: string) {
+    private handBids: number[];
+    private handTakens: number[];
+    constructor(name: string, maxHands: number) {
         this.name = name;
+        this.handBids = [];
+        this.handTakens = [];
     };
     getName(): string {
         return this.name;
     }
-    getHand(handNum: number): Hand {
-        return this.hands[handNum];
-    };
-    setHand(handNum: number, hand: Hand) {
-
+    
+    setHandBid(handNum: number, tricksBid: number) {
+        this.handBids[handNum] = tricksBid;
+        console.log(handNum);
+        console.log(tricksBid);
     };
 }
-interface Hand {
-    tricksBid: number;
-    tricksTaken: number;
+
+function bidChanged() {
+    let playerIndex: number = parseInt(this.className.replace(' ','').replace('tricksBid','').replace('player',''));
+    let handNum: number = parseInt(this.parentElement.parentElement.id.replace('hand',''));
+    //this.parentElement.parentElement.children[2].innerText = parseInt(this.parentElement.parentElement.children[2].innerText) + parseInt(this.value);
+    players[playerIndex].setHandBid(handNum,parseInt(this.value));
+    sumUpBids(this.parentElement.parentElement);
+}
+
+function sumUpBids(hand: HTMLTableRowElement) {
+    let totalBids: number = 0;
+    let bids: HTMLInputElement[] = hand.getElementsByClassName('tricksBid') as any as HTMLInputElement[];
+    for ( let i: number; i < bids.length ; i++ ) {
+        totalBids += parseInt(bids[i].value);
+    }
+    hand.children[2].innerHTML = totalBids.toString();
 }
