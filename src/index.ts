@@ -68,6 +68,9 @@ let bodyOnload = () => {
 
 function execNamePlayers() {
     numPlayers = parseInt((l.gid('numPlayers') as HTMLInputElement).value);
+    if (3 > numPlayers || numPlayers > 10) {
+        l.error("What the firetruck dude!");
+    }
     playerNumbers.className = 'invis';
     playerNames.className = 'visible';
     let playNames = l.gid("nameInputs");
@@ -80,9 +83,6 @@ function drawBoard() {
     let direction: number = 1;
     let numCards: number = 1;
     let totalPlayers: number = numPlayers;
-    if (3 > totalPlayers || totalPlayers > 10) {
-        l.error("What the firetruck dude!");
-    }
     let maxHands: number = Math.floor(52 / totalPlayers);
     // Set header
     for (let i: number = 0 ; i < totalPlayers ; i++ ) {
