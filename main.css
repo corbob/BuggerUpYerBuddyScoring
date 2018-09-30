@@ -20,5 +20,16 @@ td input {
 }
 
 .totals {
-    text-align: right
+    text-align: right;
+}
+
+.invis {
+    display: none;
+}
+
+.visible {
+    visibility: visible;
+}
+div.playerNames {
+    padding-top: 5px;
 }
