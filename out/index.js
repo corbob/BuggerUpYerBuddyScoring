@@ -70,6 +70,9 @@ var bodyOnload = function () {
 }; // on load of body
 function execNamePlayers() {
     numPlayers = parseInt(l.gid('numPlayers').value);
+    if (3 > numPlayers || numPlayers > 10) {
+        l.error("What the firetruck dude!");
+    }
     playerNumbers.className = 'invis';
     playerNames.className = 'visible';
     var playNames = l.gid("nameInputs");
@@ -81,9 +84,6 @@ function drawBoard() {
     var direction = 1;
     var numCards = 1;
     var totalPlayers = numPlayers;
-    if (3 > totalPlayers || totalPlayers > 10) {
-        l.error("What the firetruck dude!");
-    }
     var maxHands = Math.floor(52 / totalPlayers);
     // Set header
     for (var i = 0; i < totalPlayers; i++) {
