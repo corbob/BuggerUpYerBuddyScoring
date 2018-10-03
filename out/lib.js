@@ -1,9 +1,52 @@
-define(["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    function error(message) {
+var Lib = /** @class */ (function () {
+    function Lib() {
+    }
+    Lib.prototype.gid = function (id) {
+        return document.getElementById(id);
+    };
+    Lib.prototype.error = function (message) {
         window.alert(message);
         throw (message);
-    }
-    exports.error = error;
-});
+    };
+    Lib.prototype.newCell = function (contents, className) {
+        var temp = document.createElement('td');
+        if (contents !== undefined && contents !== 'input') {
+            if (className !== undefined) {
+                temp.className = className;
+            }
+            temp.innerText = contents;
+        }
+        else if (contents === 'input') {
+            var inputTemp = document.createElement('input');
+            inputTemp.type = 'number';
+            if (className !== undefined) {
+                inputTemp.className = className;
+            }
+            temp.appendChild(inputTemp);
+        }
+        else {
+            if (className !== undefined) {
+                temp.className = className;
+            }
+            temp.innerHTML = '&nbsp;';
+        }
+        return temp;
+    };
+    Lib.prototype.newInput = function (id, className) {
+        var temp = document.createElement('div');
+        var tempLbl = document.createElement('label');
+        var tempInput = document.createElement('input');
+        tempLbl.id = 'label' + id;
+        tempInput.id = 'input' + id;
+        tempLbl.htmlFor = tempInput.id;
+        tempLbl.innerText = id + ': ';
+        temp.appendChild(tempLbl);
+        temp.appendChild(tempInput);
+        if (className !== undefined) {
+            temp.className = className;
+        }
+        return temp;
+    };
+    return Lib;
+}());
+var l = new Lib();
