@@ -39,7 +39,7 @@ class Player {
     }
 
     getHandTricks(handNum: number): number {
-        return this._hands[handNum].tricksBid;
+        return this._hands[handNum].tricksTaken || 0;
     }
     setHandTricks(handNum: number, tricksTaken: number) {
         this._hands[handNum].tricksTaken = tricksTaken;

@@ -42,7 +42,7 @@ var Player = /** @class */ (function () {
         this._hands.push(new Hand(numCards));
     };
     Player.prototype.getHandTricks = function (handNum) {
-        return this._hands[handNum].tricksBid;
+        return this._hands[handNum].tricksTaken || 0;
     };
     Player.prototype.setHandTricks = function (handNum, tricksTaken) {
         this._hands[handNum].tricksTaken = tricksTaken;

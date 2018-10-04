@@ -2,7 +2,6 @@ let players: Player[] = [];
 let numPlayers: number;
 const SUITS: string[] = ['♥','♠','♦','♣','☺'];
 let headerRow: HTMLTableRowElement;
-let subHeaderRow: HTMLTableRowElement;
 let tblScore: HTMLTableElement;
 let playerNumbers: HTMLDivElement;
 let playerNames: HTMLDivElement;
@@ -11,7 +10,6 @@ let scoreRow: HTMLTableRowElement = document.createElement('tr');
 
 let bodyOnload = () => {
     headerRow = l.gid('header') as HTMLTableRowElement;
-    subHeaderRow = l.gid('subHeader') as HTMLTableRowElement;
     tblScore = l.gid('score') as HTMLTableElement;
     playerNumbers = l.gid('playerNumbers') as HTMLDivElement;
     playerNames = l.gid('playerNames') as HTMLDivElement;
@@ -42,13 +40,9 @@ function drawBoard() {
     for (let i: number = 0 ; i < totalPlayers ; i++ ) {
         players[i] = new Player((l.gid('inputplayer' + i.toString()) as HTMLInputElement).value.toString(), maxHands);
         var currentPlayer = document.createElement('th');
-        currentPlayer.colSpan = 2;
         currentPlayer.innerText = players[i].name;
         headerRow.appendChild(currentPlayer);
-        subHeaderRow.appendChild(l.newCell('Bid'));
-        subHeaderRow.appendChild(l.newCell('Taken'));
         var scoreCell = l.newCell('0', 'totals player' + i);
-        scoreCell.colSpan = 2;
         scoreRow.appendChild(scoreCell);
     }
     l.gid('playerNames').className = 'invis';
@@ -58,21 +52,32 @@ function drawBoard() {
             direction = -1;
             numCards--;
         }
-        var handRow = document.createElement('tr');
-        handRow.id = `hand${ i }`;
-        handRow.appendChild(l.newCell(numCards.toString()));
+        let handRow = document.createElement('tr');
+        let tricksRow = document.createElement('tr');
+        handRow.className = 'handRow';
+        handRow.id = `bids${ i }`;
+        tricksRow.id = `tricks${ i }`;
+        let handCell = l.newCell(numCards.toString(), 'cards');
+        handCell.rowSpan = 2;
+        handRow.appendChild(handCell);
         numCards += direction;
-        handRow.appendChild(l.newCell(SUITS[i % 5], SUITS[i % 5]));
-        handRow.appendChild(l.newCell(0 as any));
+        let suitCell = l.newCell(SUITS[i % 5], 'suits ' + SUITS[i % 5]);
+        suitCell.rowSpan = 2;
+        handRow.appendChild(suitCell);
+        let bidCell = l.newCell(0 as any)
+        // bidCell.id = 'bids' + i;
+        let tricksCell = l.newCell(0 as any)
+        // tricksCell.id = 'tricks' + i;
+        handRow.appendChild(bidCell);
+        tricksRow.appendChild(tricksCell);
         for (let j: number = 0 ; j < totalPlayers ; j++ ) {
             handRow.appendChild(l.newCell('input', 'tricks Bid player' + j.toString()));
-            handRow.appendChild(l.newCell('input', 'tricks Taken player' + j.toString()));
+            tricksRow.appendChild(l.newCell('input', 'tricks Taken player' + j.toString()));
         }
         tblScore.appendChild(handRow);
+        tblScore.appendChild(tricksRow);
     }
     tblScore.appendChild(scoreRow);
-
-    // Add callback to all Bids.
 
     let allBids: HTMLInputElement[] = document.getElementsByClassName('tricks') as any as HTMLInputElement[];
     for (let i = 0 ; i < allBids.length ; i++){
@@ -85,13 +90,15 @@ function inputChanged() {
         this.oldValue = this.defaultValue;
     }
     let playerIndex: number = parseInt(this.className.replace('Bid','').replace('Taken','').replace('tricks','').replace('player',''));
-    let handNum: number = parseInt(this.parentElement.parentElement.id.replace('hand',''));
+    let handNum: number = parseInt(this.parentElement.parentElement.id.replace('bids','').replace('tricks',''));
     //this.parentElement.parentElement.children[2].innerText = parseInt(this.parentElement.parentElement.children[2].innerText) + parseInt(this.value);
     try {
         if(this.classList.contains('Bid')) {
-            players[playerIndex].setHandBid(handNum,parseInt(this.value));    
+            players[playerIndex].setHandBid(handNum,parseInt(this.value)); 
+            sumUpBids(handNum);
         } else {
             players[playerIndex].setHandTricks(handNum,parseInt(this.value));    
+            sumUpTricks(handNum);
         }
         
         this.oldValue = this.value;
@@ -100,15 +107,36 @@ function inputChanged() {
         console.log(error);
     }
     calculateScore();
-    sumUpBids(handNum);
 }
 
 function sumUpBids(handNum: number) {
     let totalBids: number = 0;
+    let numCards: number = players[0].getHandCards(handNum);
     for (let i = 0; i < players.length ; i++) {
         totalBids += players[i].getHandBid(handNum);
     }
-    l.gid('hand' + handNum).children[2].innerHTML = totalBids.toString();
+    let bidsCell = l.gid('bids' + handNum).children[2];
+    if(totalBids === numCards) {
+        bidsCell.classList.add('badInput');
+    } else {
+        bidsCell.classList.remove('badInput');
+    }
+    bidsCell.innerHTML = totalBids.toString();
+}
+
+function sumUpTricks(handNum: number) {
+    let totalTricks: number = 0;
+    let numCards: number = players[0].getHandCards(handNum);
+    for (let i = 0; i < players.length ; i++) {
+        totalTricks += players[i].getHandTricks(handNum);
+    }
+    let tricksCell = l.gid('tricks' + handNum).children[0];
+    if(totalTricks !== numCards) {
+        tricksCell.classList.add('badInput');
+    } else {
+        tricksCell.classList.remove('badInput');
+    }
+    tricksCell.innerHTML = totalTricks.toString();
 }
 
 function calculateScore() {

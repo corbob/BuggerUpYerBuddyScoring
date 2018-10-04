@@ -2,7 +2,6 @@ var players = [];
 var numPlayers;
 var SUITS = ['♥', '♠', '♦', '♣', '☺'];
 var headerRow;
-var subHeaderRow;
 var tblScore;
 var playerNumbers;
 var playerNames;
@@ -10,7 +9,6 @@ var scoreTable;
 var scoreRow = document.createElement('tr');
 var bodyOnload = function () {
     headerRow = l.gid('header');
-    subHeaderRow = l.gid('subHeader');
     tblScore = l.gid('score');
     playerNumbers = l.gid('playerNumbers');
     playerNames = l.gid('playerNames');
@@ -39,13 +37,9 @@ function drawBoard() {
     for (var i = 0; i < totalPlayers; i++) {
         players[i] = new Player(l.gid('inputplayer' + i.toString()).value.toString(), maxHands);
         var currentPlayer = document.createElement('th');
-        currentPlayer.colSpan = 2;
         currentPlayer.innerText = players[i].name;
         headerRow.appendChild(currentPlayer);
-        subHeaderRow.appendChild(l.newCell('Bid'));
-        subHeaderRow.appendChild(l.newCell('Taken'));
         var scoreCell = l.newCell('0', 'totals player' + i);
-        scoreCell.colSpan = 2;
         scoreRow.appendChild(scoreCell);
     }
     l.gid('playerNames').className = 'invis';
@@ -56,19 +50,31 @@ function drawBoard() {
             numCards--;
         }
         var handRow = document.createElement('tr');
-        handRow.id = "hand" + i;
-        handRow.appendChild(l.newCell(numCards.toString()));
+        var tricksRow = document.createElement('tr');
+        handRow.className = 'handRow';
+        handRow.id = "bids" + i;
+        tricksRow.id = "tricks" + i;
+        var handCell = l.newCell(numCards.toString(), 'cards');
+        handCell.rowSpan = 2;
+        handRow.appendChild(handCell);
         numCards += direction;
-        handRow.appendChild(l.newCell(SUITS[i % 5], SUITS[i % 5]));
-        handRow.appendChild(l.newCell(0));
+        var suitCell = l.newCell(SUITS[i % 5], 'suits ' + SUITS[i % 5]);
+        suitCell.rowSpan = 2;
+        handRow.appendChild(suitCell);
+        var bidCell = l.newCell(0);
+        // bidCell.id = 'bids' + i;
+        var tricksCell = l.newCell(0);
+        // tricksCell.id = 'tricks' + i;
+        handRow.appendChild(bidCell);
+        tricksRow.appendChild(tricksCell);
         for (var j = 0; j < totalPlayers; j++) {
             handRow.appendChild(l.newCell('input', 'tricks Bid player' + j.toString()));
-            handRow.appendChild(l.newCell('input', 'tricks Taken player' + j.toString()));
+            tricksRow.appendChild(l.newCell('input', 'tricks Taken player' + j.toString()));
         }
         tblScore.appendChild(handRow);
+        tblScore.appendChild(tricksRow);
     }
     tblScore.appendChild(scoreRow);
-    // Add callback to all Bids.
     var allBids = document.getElementsByClassName('tricks');
     for (var i = 0; i < allBids.length; i++) {
         allBids[i].addEventListener('change', inputChanged);
@@ -80,14 +86,16 @@ function inputChanged() {
         this.oldValue = this.defaultValue;
     }
     var playerIndex = parseInt(this.className.replace('Bid', '').replace('Taken', '').replace('tricks', '').replace('player', ''));
-    var handNum = parseInt(this.parentElement.parentElement.id.replace('hand', ''));
+    var handNum = parseInt(this.parentElement.parentElement.id.replace('bids', '').replace('tricks', ''));
     //this.parentElement.parentElement.children[2].innerText = parseInt(this.parentElement.parentElement.children[2].innerText) + parseInt(this.value);
     try {
         if (this.classList.contains('Bid')) {
             players[playerIndex].setHandBid(handNum, parseInt(this.value));
+            sumUpBids(handNum);
         }
         else {
             players[playerIndex].setHandTricks(handNum, parseInt(this.value));
+            sumUpTricks(handNum);
         }
         this.oldValue = this.value;
     }
@@ -96,14 +104,36 @@ function inputChanged() {
         console.log(error);
     }
     calculateScore();
-    sumUpBids(handNum);
 }
 function sumUpBids(handNum) {
     var totalBids = 0;
+    var numCards = players[0].getHandCards(handNum);
     for (var i = 0; i < players.length; i++) {
         totalBids += players[i].getHandBid(handNum);
     }
-    l.gid('hand' + handNum).children[2].innerHTML = totalBids.toString();
+    var bidsCell = l.gid('bids' + handNum).children[2];
+    if (totalBids === numCards) {
+        bidsCell.classList.add('badInput');
+    }
+    else {
+        bidsCell.classList.remove('badInput');
+    }
+    bidsCell.innerHTML = totalBids.toString();
+}
+function sumUpTricks(handNum) {
+    var totalTricks = 0;
+    var numCards = players[0].getHandCards(handNum);
+    for (var i = 0; i < players.length; i++) {
+        totalTricks += players[i].getHandTricks(handNum);
+    }
+    var tricksCell = l.gid('tricks' + handNum).children[0];
+    if (totalTricks !== numCards) {
+        tricksCell.classList.add('badInput');
+    }
+    else {
+        tricksCell.classList.remove('badInput');
+    }
+    tricksCell.innerHTML = totalTricks.toString();
 }
 function calculateScore() {
     var totalScores = document.getElementsByClassName("totals");
