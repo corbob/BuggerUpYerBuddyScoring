@@ -35,6 +35,9 @@ function drawBoard() {
     var numCards = 1;
     var totalPlayers = numPlayers;
     var maxHands = parseInt(l.gid('numCards').value);
+    if (maxHands > 52 || maxHands < 1) {
+        maxHands = Math.floor(52 / numPlayers);
+    }
     // Set header
     for (var i = 0; i < totalPlayers; i++) {
         players[i] = new Player(l.gid('inputplayer' + i.toString()).value.toString(), maxHands);
