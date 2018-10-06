@@ -16,6 +16,8 @@ let bodyOnload = () => {
     scoreRow.appendChild(l.newCell());
     scoreRow.appendChild(l.newCell());
     scoreRow.appendChild(l.newCell());
+    let numPlayersInput: HTMLInputElement = l.gid('numPlayers') as HTMLInputElement;
+    numPlayersInput.addEventListener('change', calculateCards);
 }; // on load of body
 
 function execNamePlayers() {
@@ -35,7 +37,7 @@ function drawBoard() {
     let direction: number = 1;
     let numCards: number = 1;
     let totalPlayers: number = numPlayers;
-    let maxHands: number = Math.floor(52 / totalPlayers);
+    let maxHands: number = parseInt((l.gid('numCards') as HTMLInputElement).value);
     // Set header
     for (let i: number = 0 ; i < totalPlayers ; i++ ) {
         players[i] = new Player((l.gid('inputplayer' + i.toString()) as HTMLInputElement).value.toString(), maxHands);
@@ -122,6 +124,13 @@ function sumUpBids(handNum: number) {
         bidsCell.classList.remove('badInput');
     }
     bidsCell.innerHTML = totalBids.toString();
+}
+
+function calculateCards() {
+    console.log(this);
+    let maxCards: number = Math.floor(52 / this.value);
+    let numCardsInput: HTMLInputElement = l.gid("numCards") as HTMLInputElement;
+    numCardsInput.value = maxCards.toString();
 }
 
 function sumUpTricks(handNum: number) {

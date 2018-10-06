@@ -15,6 +15,8 @@ var bodyOnload = function () {
     scoreRow.appendChild(l.newCell());
     scoreRow.appendChild(l.newCell());
     scoreRow.appendChild(l.newCell());
+    var numPlayersInput = l.gid('numPlayers');
+    numPlayersInput.addEventListener('change', calculateCards);
 }; // on load of body
 function execNamePlayers() {
     numPlayers = parseInt(l.gid('numPlayers').value);
@@ -32,7 +34,7 @@ function drawBoard() {
     var direction = 1;
     var numCards = 1;
     var totalPlayers = numPlayers;
-    var maxHands = Math.floor(52 / totalPlayers);
+    var maxHands = parseInt(l.gid('numCards').value);
     // Set header
     for (var i = 0; i < totalPlayers; i++) {
         players[i] = new Player(l.gid('inputplayer' + i.toString()).value.toString(), maxHands);
@@ -119,6 +121,12 @@ function sumUpBids(handNum) {
         bidsCell.classList.remove('badInput');
     }
     bidsCell.innerHTML = totalBids.toString();
+}
+function calculateCards() {
+    console.log(this);
+    var maxCards = Math.floor(52 / this.value);
+    var numCardsInput = l.gid("numCards");
+    numCardsInput.value = maxCards.toString();
 }
 function sumUpTricks(handNum) {
     var totalTricks = 0;
