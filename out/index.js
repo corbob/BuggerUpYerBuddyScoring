@@ -7,17 +7,20 @@ var playerNumbers;
 var playerNames;
 var scoreTable;
 var scoreRow = document.createElement('tr');
-var bodyOnload = function () {
+function bodyOnload() {
     headerRow = l.gid('header');
     tblScore = l.gid('score');
     playerNumbers = l.gid('playerNumbers');
     playerNames = l.gid('playerNames');
-    scoreRow.appendChild(l.newCell());
-    scoreRow.appendChild(l.newCell());
-    scoreRow.appendChild(l.newCell());
-    var numPlayersInput = l.gid('numPlayers');
-    numPlayersInput.addEventListener('change', calculateCards);
-}; // on load of body
+    for (var i = 0; i < 3; i++) {
+        scoreRow.appendChild(l.newCell());
+    }
+}
+function calculateCards(selection) {
+    var maxCards = Math.floor(52 / selection.value);
+    var numCardsInput = l.gid("numCards");
+    numCardsInput.value = maxCards.toString();
+}
 function execNamePlayers() {
     numPlayers = parseInt(l.gid('numPlayers').value);
     if (3 > numPlayers || numPlayers > 10) {
@@ -33,13 +36,12 @@ function execNamePlayers() {
 function drawBoard() {
     var direction = 1;
     var numCards = 1;
-    var totalPlayers = numPlayers;
     var maxHands = parseInt(l.gid('numCards').value);
-    if (maxHands > 52 || maxHands < 1) {
+    if ((maxHands * numPlayers) > 52 || maxHands < 1) {
         maxHands = Math.floor(52 / numPlayers);
     }
     // Set header
-    for (var i = 0; i < totalPlayers; i++) {
+    for (var i = 0; i < numPlayers; i++) {
         players[i] = new Player(l.gid('inputplayer' + i.toString()).value.toString(), maxHands);
         var currentPlayer = document.createElement('th');
         currentPlayer.innerText = players[i].name;
@@ -67,34 +69,31 @@ function drawBoard() {
         suitCell.rowSpan = 2;
         handRow.appendChild(suitCell);
         var bidCell = l.newCell(0);
-        // bidCell.id = 'bids' + i;
         var tricksCell = l.newCell(0);
-        // tricksCell.id = 'tricks' + i;
         handRow.appendChild(bidCell);
         tricksRow.appendChild(tricksCell);
-        for (var j = 0; j < totalPlayers; j++) {
-            handRow.appendChild(l.newCell('input', 'tricks Bid player' + j.toString()));
-            tricksRow.appendChild(l.newCell('input', 'tricks Taken player' + j.toString()));
+        for (var j = 0; j < numPlayers; j++) {
+            var handBidCell = l.newCell(undefined, 'tricks Bid player' + j.toString());
+            handBidCell.appendChild(l.newTrickInput(i, j, 'tricks bid'));
+            handRow.appendChild(handBidCell);
+            var handTricksCell = l.newCell(undefined, 'tricks Taken player' + j.toString());
+            handTricksCell.appendChild(l.newTrickInput(i, j, 'tricks taken'));
+            tricksRow.appendChild(handTricksCell);
         }
         tblScore.appendChild(handRow);
         tblScore.appendChild(tricksRow);
     }
     tblScore.appendChild(scoreRow);
-    var allBids = document.getElementsByClassName('tricks');
-    for (var i = 0; i < allBids.length; i++) {
-        allBids[i].addEventListener('change', inputChanged);
-    }
 }
 ; // Draw Scoreboard on button click.
 function inputChanged() {
     if (this.oldValue === undefined) {
         this.oldValue = this.defaultValue;
     }
-    var playerIndex = parseInt(this.className.replace('Bid', '').replace('Taken', '').replace('tricks', '').replace('player', ''));
-    var handNum = parseInt(this.parentElement.parentElement.id.replace('bids', '').replace('tricks', ''));
-    //this.parentElement.parentElement.children[2].innerText = parseInt(this.parentElement.parentElement.children[2].innerText) + parseInt(this.value);
+    var playerIndex = this.dataset['player'];
+    var handNum = this.dataset['hand'];
     try {
-        if (this.classList.contains('Bid')) {
+        if (this.classList.contains('bid')) {
             players[playerIndex].setHandBid(handNum, parseInt(this.value));
             sumUpBids(handNum);
         }
@@ -116,7 +115,7 @@ function sumUpBids(handNum) {
     for (var i = 0; i < players.length; i++) {
         totalBids += players[i].getHandBid(handNum);
     }
-    var bidsCell = l.gid('bids' + handNum).children[2];
+    var bidsCell = l.gid("bids" + handNum).children[2];
     if (totalBids === numCards) {
         bidsCell.classList.add('badInput');
     }
@@ -124,12 +123,6 @@ function sumUpBids(handNum) {
         bidsCell.classList.remove('badInput');
     }
     bidsCell.innerHTML = totalBids.toString();
-}
-function calculateCards() {
-    console.log(this);
-    var maxCards = Math.floor(52 / this.value);
-    var numCardsInput = l.gid("numCards");
-    numCardsInput.value = maxCards.toString();
 }
 function sumUpTricks(handNum) {
     var totalTricks = 0;

@@ -10,26 +10,20 @@ var Lib = /** @class */ (function () {
     };
     Lib.prototype.newCell = function (contents, className) {
         var temp = document.createElement('td');
-        if (contents !== undefined && contents !== 'input') {
+        if (contents !== undefined) {
             if (className !== undefined) {
                 temp.className = className;
             }
             temp.innerText = contents;
         }
-        else if (contents === 'input') {
-            var inputTemp = document.createElement('input');
-            inputTemp.type = 'number';
-            if (className !== undefined) {
-                inputTemp.className = className;
-            }
-            temp.appendChild(inputTemp);
-        }
-        else {
-            if (className !== undefined) {
-                temp.className = className;
-            }
-            temp.innerHTML = '&nbsp;';
-        }
+        return temp;
+    };
+    Lib.prototype.newTrickInput = function (hand, player, className) {
+        var temp = document.createElement('input');
+        temp.dataset['hand'] = hand.toString();
+        temp.dataset['player'] = player.toString();
+        temp.className = className;
+        temp.addEventListener('change', inputChanged);
         return temp;
     };
     Lib.prototype.newInput = function (id, className) {
